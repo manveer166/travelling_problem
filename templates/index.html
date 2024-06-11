@@ -1,0 +1,59 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehicle Routing Problem Solver</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        form { margin: 20px; }
+        label, input { display: block; margin: 10px 0; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Vehicle Routing Problem Solver</h1>
+    <form id="vrp-form">
+        <label for="api_key">Google Maps API Key:</label>
+        <input type="text" id="api_key" name="api_key" required>
+        
+        <label for="patient_addresses">Patient Addresses (comma-separated):</label>
+        <input type="text" id="patient_addresses" name="patient_addresses" required>
+        
+        <label for="worker_names">Worker Names (comma-separated):</label>
+        <input type="text" id="worker_names" name="worker_names" required>
+        
+        <button type="submit">Optimize Routes</button>
+    </form>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('vrp-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const api_key = document.getElementById('api_key').value;
+            const patient_addresses = document.getElementById('patient_addresses').value.split(',');
+            const worker_names = document.getElementById('worker_names').value.split(',');
+
+            fetch('/optimize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    api_key: api_key,
+                    patient_addresses: patient_addresses,
+                    worker_names: worker_names
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<h2>Optimization Results</h2>';
+                data.forEach(result => {
+                    resultsDiv.innerHTML += `<p>Worker: ${result.worker}<br>Route: ${result.route.join(' -> ')}<br>Distance: ${result.distance.toFixed(2)} km</p>`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
